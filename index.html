@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="theme-color" content="#010e1f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Flight Aditi | In-Flight Tribute & Digital Boarding Pass</title>
+  <meta name="description" content="Welcome aboard Flight Aditi (AD-05). From the Aundha to Parbhani red bus to 35,000 feet in the sky, artifacts, and Destination Italy.">
+
+  <!-- Google Fonts: Inter, Montserrat & Caveat (Handwritten Scrapbook Notes) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Ambient Cabin Lighting Effect -->
+  <div class="cabin-lighting-layer" aria-hidden="true"></div>
+
+  <!-- Vertical Altitude Scroll Progress Bar (Right Rail) -->
+  <aside class="altitude-rail" id="altitudeRail" aria-label="Flight Altitude Progress">
+    <div class="altitude-track">
+      <div class="altitude-fill" id="altitudeFill"></div>
+      <div class="altitude-plane-indicator" id="altitudePlaneIndicator" title="Current Cruising Altitude">
+        <i class="fa-solid fa-plane"></i>
+      </div>
+    </div>
+    <div class="altitude-readout">
+      <span class="alt-label">ALTITUDE</span>
+      <span class="alt-value" id="altValue">0 FT</span>
+      <span class="alt-status" id="altStatus">ORIGIN RUNWAY</span>
+    </div>
+  </aside>
+
+  <!-- IFE Tablet Screen Frame -->
+  <div class="ife-screen-frame">
+
+    <!-- Top In-Flight Status & Telemetry Bar -->
+    <header class="ife-top-bar" id="topStatusBar">
+      <div class="status-brand">
+        <span class="brand-logo-circle"><i class="fa-solid fa-plane-departure"></i></span>
+        <div class="brand-text-block">
+          <span class="airline-name">ADITI AIRWAYS</span>
+          <span class="flight-number">FLIGHT AD-05 • FIRST CLASS</span>
+        </div>
+      </div>
+
+      <div class="status-center-telemetry">
+        <span class="telemetry-pill">
+          <span class="live-dot pulse-animation"></span>
+          CRUISING • MACH 0.85
+        </span>
+        <span class="telemetry-pill origin-pill">
+          <i class="fa-solid fa-bus"></i> ORIGIN: AUNDHA
+        </span>
+        <span class="telemetry-pill dest-pill">
+          <i class="fa-solid fa-location-dot"></i> DEST: MILAN &amp; ROME
+        </span>
+      </div>
+
+      <div class="status-system-indicators">
+        <span class="system-indicator" title="Cabin Wi-Fi Connected">
+          <i class="fa-solid fa-wifi"></i> <span class="hide-on-mobile">Wi-Fi:</span> 100%
+        </span>
+        <span class="system-indicator" id="cabinClock" title="Local Cabin Time">
+          <i class="fa-regular fa-clock"></i> 08:00 AM
+        </span>
+        <button class="call-chime-button" id="headerChimeBtn" type="button" aria-label="Ring Cabin Attendant Chime">
+          <i class="fa-solid fa-bell"></i>
+          <span>Ding</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Quick Touch Navigation Bar -->
+    <nav class="quick-nav-bar" id="quickNavBar" aria-label="Quick Section Navigation">
+      <div class="nav-scroll-wrapper">
+        <a href="#hero-boarding-pass" class="nav-chip active" id="chip-pass"><i class="fa-solid fa-ticket"></i> Boarding Pass</a>
+        <a href="#security-checkpoint" class="nav-chip" id="chip-security"><i class="fa-solid fa-shield-halved"></i> Clearance Test</a>
+        <a href="#artifact-vault" class="nav-chip" id="chip-artifacts"><i class="fa-solid fa-camera-retro"></i> Artifact Vault</a>
+        <a href="#hazard-checklist" class="nav-chip" id="chip-hazard"><i class="fa-solid fa-clipboard-check"></i> Survivor Checklist</a>
+        <a href="#galley-menu" class="nav-chip" id="chip-menu"><i class="fa-solid fa-utensils"></i> Galley &amp; Cockpit</a>
+        <a href="#survivor-data" class="nav-chip" id="chip-survivor"><i class="fa-solid fa-heart-pulse"></i> 3-Year Saint Data</a>
+        <a href="#flight-path" class="nav-chip" id="chip-path"><i class="fa-solid fa-route"></i> Flight Path</a>
+      </div>
+    </nav>
+
+    <!-- Cabin Announcement Toast Banner -->
+    <div class="cabin-pa-banner" id="cabinPaBanner" role="alert" aria-live="polite">
+      <div class="pa-icon"><i class="fa-solid fa-bullhorn"></i></div>
+      <div class="pa-content">
+        <span class="pa-title">CABIN CREW ANNOUNCEMENT</span>
+        <p class="pa-message" id="paMessageText">Attention passengers: Please be advised that true connection does not begin in Paris or Venice. It begins on a bumpy MSRTC red bus clattering its way from Aundha to Parbhani, where the inflight entertainment was just me trying not to fall into your lap on every speed breaker.</p>
+      </div>
+      <button class="pa-close-btn" id="paCloseBtn" aria-label="Dismiss announcement">&times;</button>
+    </div>
+
+    <!-- MAIN SCROLLABLE CONTENT -->
+    <main class="ife-content-body">
+
+      <!-- SECTION 1: 3D FLIPPING BOARDING PASS HERO -->
+      <section class="section hero-section" id="hero-boarding-pass">
+        <div class="hero-header-box">
+          <span class="sub-eyebrow"><i class="fa-solid fa-bus"></i> ORIGIN RUNWAY: AUNDHA TO PARBHANI (2017)</span>
+          <h1 class="main-hero-title">Flight Aditi <span class="tag-gold">AD-05</span></h1>
+          <p class="hero-subtitle">From the bumpy clatter of the MSRTC red bus to 35,000 feet in the sky — and onward to Italian gelato.</p>
+        </div>
+
+        <!-- 3D Flip Card Container -->
+        <div class="boarding-pass-3d-scene" id="boardingPassScene">
+          <div class="flip-card-inner" id="flipCardInner">
+
+            <!-- FRONT OF TICKET -->
+            <div class="ticket-card ticket-front" id="ticketFront">
+              <div class="ticket-brand-header">
+                <div class="ticket-logo-title">
+                  <span class="flight-icon"><i class="fa-solid fa-plane"></i></span>
+                  <div>
+                    <h2 class="ticket-airline">ADITI AIRWAYS</h2>
+                    <span class="ticket-tagline">Official VIP Companion Pass</span>
+                  </div>
+                </div>
+                <div class="ticket-class-badge">
+                  <i class="fa-solid fa-crown"></i> FIRST CLASS (OBVIOUSLY)
+                </div>
+              </div>
+
+              <div class="ticket-body-grid">
+                <div class="ticket-field">
+                  <span class="field-label">PASSENGER NAME</span>
+                  <span class="field-val passenger-highlight">Aditi</span>
+                </div>
+                <div class="ticket-field">
+                  <span class="field-label">ASSIGNED SEAT</span>
+                  <span class="field-val comfort-seat"><i class="fa-solid fa-couch"></i> Next to Destiny (Non-Reclining)</span>
+                </div>
+                <div class="ticket-field">
+                  <span class="field-label">FLIGHT ROUTE</span>
+                  <span class="field-val route-val">AUNDHA ➔ PARBHANI ➔ ITALY</span>
+                </div>
+                <div class="ticket-field">
+                  <span class="field-label">BOARDING STATUS</span>
+                  <span class="field-val status-granted"><i class="fa-solid fa-circle-check"></i> LIFETIME CLEARANCE</span>
+                </div>
+              </div>
+
+              <!-- Perforated Tear Line -->
+              <div class="ticket-perforation">
+                <span class="perforation-notch notch-left"></span>
+                <span class="perforation-dashed-line"></span>
+                <span class="perforation-notch notch-right"></span>
+              </div>
+
+              <!-- Ticket Footer & Action Prompt -->
+              <div class="ticket-footer-strip">
+                <div class="barcode-group">
+                  <div class="barcode-graphic" aria-label="Barcode representation"></div>
+                  <span class="barcode-number">AD-05-AUNDHA-PARBHANI-2017-2026</span>
+                </div>
+                <div class="flip-prompt-badge">
+                  <i class="fa-solid fa-repeat"></i>
+                  <span>Click or Tap to Flip Ticket</span>
+                </div>
+              </div>
+
+              <!-- Urgent Cabin Notice Banner -->
+              <div class="ticket-safety-directive">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span><strong>CABIN DIRECTIVE:</strong> Emergency doors operate manually. Red objects remain strictly protected.</span>
+              </div>
+            </div>
+
+            <!-- BACK OF TICKET (Revealed on 3D Flip) -->
+            <div class="ticket-card ticket-back" id="ticketBack">
+              <div class="ticket-back-header">
+                <span class="security-stamp"><i class="fa-solid fa-certificate"></i> ACCESS GRANTED • TOP SECRET</span>
+                <span class="clearance-level">CLEARANCE: PURSER LEVEL 1</span>
+              </div>
+
+              <div class="ticket-back-content">
+                <h3 class="back-title">Confidential Purser Flight Log #007</h3>
+                
+                <div class="handwritten-scrapbook-note">
+                  <p class="handwritten-text">
+                    “If found, return to the girl who traded molecular food science for Boeing safety manuals. 
+                    Origin Runway: The clattering MSRTC red bus from Aundha to Parbhani, trying not to slide into your lap on every speed breaker.
+                    Authorized for infinite second chances, warm tea deliveries, and zero intention of returning the 7-year scarf.”
+                  </p>
+                  <span class="handwritten-signature">— Co-Pilot Kanishk</span>
+                </div>
+
+                <div class="ticket-specs-row">
+                  <div class="spec-box">
+                    <span class="spec-k">ORIGIN RUNWAY</span>
+                    <span class="spec-v">Aundha ➔ Parbhani</span>
+                  </div>
+                  <div class="spec-box">
+                    <span class="spec-k">SURVIVOR BADGE</span>
+                    <span class="spec-v">Saint Class Tier</span>
+                  </div>
+                  <div class="spec-box">
+                    <span class="spec-k">NEXT STOP</span>
+                    <span class="spec-v">Bella Italia 🇮🇹</span>
+                  </div>
+                </div>
+
+                <div class="back-actions">
+                  <button class="chime-play-btn" id="cardChimeTrigger" type="button">
+                    <i class="fa-solid fa-bell"></i> Ring Cabin Chime
+                  </button>
+                  <button class="flip-back-btn" id="flipBackBtn" type="button">
+                    <i class="fa-solid fa-rotate-left"></i> Flip Back
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="flip-hint-bar">
+          <span class="hint-text"><i class="fa-regular fa-hand-pointer"></i> <strong>Pro Tip:</strong> Click the boarding pass anytime to flip it 360° or trigger the cabin chime!</span>
+        </div>
+      </section>
+
+      <!-- SECTION 2: THE COLOR GATEKEEPER (THE RED TEST - INTERACTIVE CHECKPOINT) -->
+      <section class="section" id="security-checkpoint">
+        <div class="section-title-wrap">
+          <div class="section-badge badge-red"><i class="fa-solid fa-shield-halved"></i></div>
+          <div>
+            <h2 class="section-heading">Crucial Cabin Clearance Test</h2>
+            <p class="section-subheading">Mandatory in-flight security checkpoint before reaching Cruising Altitude</p>
+          </div>
+        </div>
+
+        <div class="security-test-card" id="clearanceCard">
+          <div class="security-card-header">
+            <div class="security-status-indicator" id="securityStatusPill">
+              <span class="status-pulse-dot"></span>
+              <span class="status-text-label" id="statusLabelText">SECURITY CHECK REQUIRED • SEAT 1A</span>
+            </div>
+            <span class="security-gate-id"><i class="fa-solid fa-fingerprint"></i> GATE SECURITY CHECKPOINT</span>
+          </div>
+
+          <div class="security-prompt-box">
+            <span class="security-query-tag"><i class="fa-solid fa-circle-question"></i> SECURITY DIRECTIVE</span>
+            <h3 class="security-question">“Before proceeding to Cruising Altitude, state Kanishk’s favorite color:”</h3>
+            <p class="security-instruction">Select the exact color frequency authorized in cockpit telemetry logs to unlock First-Class clearance.</p>
+          </div>
+
+          <div class="color-options-grid" id="colorOptionsGrid">
+            <button class="color-choice-btn btn-sky-blue" type="button" data-color="blue" id="btnColorBlue">
+              <span class="color-swatch swatch-blue"></span>
+              <span class="color-name">Sky Blue</span>
+            </button>
+            <button class="color-choice-btn btn-orange" type="button" data-color="orange" id="btnColorOrange">
+              <span class="color-swatch swatch-orange"></span>
+              <span class="color-name">Safety Orange</span>
+            </button>
+            <button class="color-choice-btn btn-crimson" type="button" data-color="red" id="btnColorRed">
+              <span class="color-swatch swatch-red"></span>
+              <span class="color-name">Crimson Red</span>
+            </button>
+          </div>
+
+          <!-- Alert Feedback Container -->
+          <div class="clearance-feedback-box" id="clearanceFeedbackBox" style="display: none;">
+            <div class="feedback-icon" id="feedbackIcon"></div>
+            <div class="feedback-text-content">
+              <h4 class="feedback-title" id="feedbackTitle"></h4>
+              <p class="feedback-desc" id="feedbackDesc"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: THE ARTIFACT VAULT (POLAROIDS WITH REAL IMAGES) -->
+      <section class="section" id="artifact-vault">
+        <div class="section-title-wrap">
+          <div class="section-badge"><i class="fa-solid fa-camera-retro"></i></div>
+          <div>
+            <h2 class="section-heading">The Artifact Vault</h2>
+            <p class="section-subheading">Unclaimed baggage since 2017 held in safe custody with zero intention of returning</p>
+          </div>
+        </div>
+
+        <div class="polaroid-grid">
+
+          <!-- POLAROID 1: THE 7-YEAR WATCH -->
+          <article class="polaroid-card" id="polaroidWatch" tabindex="0" role="button" aria-label="Open 7-Year Watch details in lightbox">
+            <div class="polaroid-pin"><i class="fa-solid fa-thumbtack"></i></div>
+            <div class="polaroid-tape-strip tape-top-right"></div>
+            <div class="polaroid-frame">
+              <div class="polaroid-img-container">
+                <img src="assets/watch.jpg" alt="Vintage 7-year watch" class="polaroid-photo" loading="lazy">
+                <div class="polaroid-customs-stamp">
+                  <span class="stamp-border">UNCLAIMED BAGGAGE SINCE 2017</span>
+                </div>
+              </div>
+              <div class="polaroid-caption-area">
+                <h3 class="polaroid-title">The 7-Year Watch</h3>
+                <p class="polaroid-handwritten">“Unclaimed baggage since 2017. Current status: Held in safe custody, zero intention of returning.”</p>
+                <div class="artifact-lore-box">
+                  <span class="lore-tag"><i class="fa-solid fa-clock-rotate-left"></i> CUSTODY LOG:</span>
+                  <p class="lore-text">Original arrangement: <em>“I’ll pick it up next weekend.”</em> Current status: Year 7, ticks flawlessly, officially a family heirloom with diplomatic immunity.</p>
+                </div>
+              </div>
+            </div>
+            <div class="polaroid-action-overlay">
+              <span class="tap-zoom-label"><i class="fa-solid fa-magnifying-glass-plus"></i> Click to Inspect Cargo</span>
+            </div>
+          </article>
+
+          <!-- POLAROID 2: THE COZY SCARF -->
+          <article class="polaroid-card" id="polaroidScarf" tabindex="0" role="button" aria-label="Open Scarf details in lightbox">
+            <div class="polaroid-pin"><i class="fa-solid fa-thumbtack"></i></div>
+            <div class="polaroid-tape-strip tape-top-left"></div>
+            <div class="polaroid-frame">
+              <div class="polaroid-img-container">
+                <img src="assets/scarf.jpg" alt="Cozy winter knitted scarf" class="polaroid-photo" loading="lazy">
+                <div class="polaroid-customs-stamp stamp-red">
+                  <span class="stamp-border">HEIRLOOM STATUS</span>
+                </div>
+              </div>
+              <div class="polaroid-caption-area">
+                <h3 class="polaroid-title">The Legendary Scarf</h3>
+                <p class="polaroid-handwritten">“Surviving winter drafts since 2017.”</p>
+                <div class="artifact-lore-box">
+                  <span class="lore-tag"><i class="fa-solid fa-shield-heart"></i> DEFENSE SYSTEM:</span>
+                  <p class="lore-text">Surviving aggressive air-conditioning in aircraft galleys and chilly winter journeys. Held in safe custody with zero intention of returning.</p>
+                </div>
+              </div>
+            </div>
+            <div class="polaroid-action-overlay">
+              <span class="tap-zoom-label"><i class="fa-solid fa-magnifying-glass-plus"></i> Click to Inspect Cargo</span>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- SECTION 4: THE HAZARD & SURVIVOR CHECKLIST (CONFETTI BURST) -->
+      <section class="section" id="hazard-checklist">
+        <div class="section-title-wrap">
+          <div class="section-badge badge-orange"><i class="fa-solid fa-clipboard-check"></i></div>
+          <div>
+            <h2 class="section-heading">Cabin Hazard &amp; Survivor Checklist</h2>
+            <p class="section-subheading">Check off every operational hurdle endured during our flight path for an instant confetti celebration!</p>
+          </div>
+        </div>
+
+        <div class="checklist-card">
+          <div class="checklist-header">
+            <div class="checklist-title-col">
+              <span class="chk-badge"><i class="fa-solid fa-shield-virus"></i> REGULATORY INSPECTION</span>
+              <h3 class="chk-h3">Passenger Aditi's Saint Protocol Checklist</h3>
+            </div>
+            <div class="score-counter-box">
+              <span class="score-label">SURVIVOR SCORE</span>
+              <span class="score-count" id="scoreCount">0 / 6</span>
+            </div>
+          </div>
+
+          <div class="checklist-items-grid" id="checklistContainer">
+
+            <!-- Item 1: The Bus Ride Origin -->
+            <label class="check-item-row" data-id="chk-1">
+              <input type="checkbox" class="chk-input" id="chk-bus">
+              <span class="chk-custom-box"><i class="fa-solid fa-check"></i></span>
+              <div class="chk-text-block">
+                <strong class="chk-label-title">Surviving the Aundha to Parbhani Express (2017) 🚌</strong>
+                <span class="chk-desc">Enduring the bumpy clattering red MSRTC bus while Kanishk desperately tried not to slide into your lap on every speed breaker.</span>
+              </div>
+              <span class="chk-chip chip-gold">Origin Runway</span>
+            </label>
+
+            <!-- Item 2: The Engineering Brain -->
+            <label class="check-item-row" data-id="chk-2">
+              <input type="checkbox" class="chk-input" id="chk-engineering">
+              <span class="chk-custom-box"><i class="fa-solid fa-check"></i></span>
+              <div class="chk-text-block">
+                <strong class="chk-label-title">The Engineering Brain Saint Award 🧠</strong>
+                <span class="chk-desc">Listening to multi-hour breakdowns of algorithms, tech hardware, and logic puzzles without once deploying the emergency oxygen mask.</span>
+              </div>
+              <span class="chk-chip chip-blue">Saint Tier</span>
+            </label>
+
+            <!-- Item 3: The 7-Year Rental Plan -->
+            <label class="check-item-row" data-id="chk-3">
+              <input type="checkbox" class="chk-input" id="chk-rental">
+              <span class="chk-custom-box"><i class="fa-solid fa-check"></i></span>
+              <div class="chk-text-block">
+                <strong class="chk-label-title">Awarded “Most Patient Creditor” (Watch &amp; Scarf) 🧣</strong>
+                <span class="chk-desc">Leaving a watch and scarf on what was supposed to be a temporary loan—now officially the longest-running non-returned souvenir in civil aviation history.</span>
+              </div>
+              <span class="chk-chip chip-red">2,556 Days</span>
+            </label>
+
+            <!-- Item 4: Passenger 14B -->
+            <label class="check-item-row" data-id="chk-4">
+              <input type="checkbox" class="chk-input" id="chk-callbell">
+              <span class="chk-custom-box"><i class="fa-solid fa-check"></i></span>
+              <div class="chk-text-block">
+                <strong class="chk-label-title">Managing Passenger 14B in Severe Turbulence ✈️</strong>
+                <span class="chk-desc">Answering call bells while the plane is bouncing, only for someone to ask for warm water for the 10th time.</span>
+              </div>
+              <span class="chk-chip chip-gold">35,000 FT</span>
+            </label>
+
+            <!-- Item 5: Banning Bhindi Masala -->
+            <label class="check-item-row" data-id="chk-5">
+              <input type="checkbox" class="chk-input" id="chk-bhindi">
+              <span class="chk-custom-box"><i class="fa-solid fa-check"></i></span>
+              <div class="chk-text-block">
+                <strong class="chk-label-title">Banning Bhindi Masala from the Cockpit 🚫</strong>
+                <span class="chk-desc">Rated 0/10 by Ground Crew. Strictly eliminated from all in-flight galleys and cockpits forever.</span>
+              </div>
+              <span class="chk-chip chip-red">0/10 Food</span>
+            </label>
+
+            <!-- Item 6: Destination Italy -->
+            <label class="check-item-row" data-id="chk-6">
+              <input type="checkbox" class="chk-input" id="chk-italy">
+              <span class="chk-custom-box"><i class="fa-solid fa-check"></i></span>
+              <div class="chk-text-block">
+                <strong class="chk-label-title">Clearance for Destination Italy (Data Science &amp; Gelato) 🇮🇹</strong>
+                <span class="chk-desc">Full runway clearance granted to code algorithms by day and eat artisanal stracciatella gelato by night.</span>
+              </div>
+              <span class="chk-chip chip-emerald">Destination</span>
+            </label>
+
+          </div>
+
+          <!-- Celebration Banner on All Completed -->
+          <div class="checklist-all-done-banner" id="allDoneBanner" style="display: none;">
+            <div class="all-done-icon">🎉</div>
+            <div class="all-done-content">
+              <h4>CONGRATULATIONS: MAXIMUM SAINT STATUS ATTAINED!</h4>
+              <p>You have unlocked unlimited free cabin upgrades, lifetime immunity from bad dinner choices, and permanent Italian gelato privileges!</p>
+            </div>
+            <button class="confetti-retrigger-btn" id="retriggerConfettiBtn" type="button">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> More Confetti!
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: THE GALLEY MENU & TECH ROASTS -->
+      <section class="section" id="galley-menu">
+        <div class="section-title-wrap">
+          <div class="section-badge"><i class="fa-solid fa-utensils"></i></div>
+          <div>
+            <h2 class="section-heading">The Galley Menu: Career Evolutions &amp; Roasts</h2>
+            <p class="section-subheading">Hover or tap cards to reveal how food tech aspirations morphed into flight deck realities</p>
+          </div>
+        </div>
+
+        <div class="menu-cards-grid">
+
+          <!-- Galley Item 1: The Transformation -->
+          <div class="galley-reveal-card" tabindex="0">
+            <div class="galley-badge"><i class="fa-solid fa-repeat"></i> HOVER TO REVEAL TRANSFORMATION</div>
+            <div class="galley-card-header">
+              <span class="dish-emoji">🧀 ➔ ☕</span>
+              <h3 class="galley-dish-name">Career Course 01: The Main Special</h3>
+            </div>
+            <div class="reveal-content-container">
+              <div class="content-original">
+                <span class="state-label tag-aspirations">Food Tech Aspirations (2018)</span>
+                <p class="dish-text strike-target">
+                  <s>Food Tech: Measuring the exact shelf-life of processed cheese</s>
+                </p>
+              </div>
+              <div class="content-transformed">
+                <span class="state-label tag-realities">Flight Deck Realities (2024)</span>
+                <p class="dish-text highlight-reality">
+                  ➔ Flight Deck: Explaining to Seat 12C that tea and coffee are made with the same hot water tank.
+                </p>
+              </div>
+            </div>
+            <div class="galley-footer-status">
+              <span class="status-left"><i class="fa-solid fa-arrow-trend-up"></i> Promotion: High Altitude</span>
+              <span class="status-right">Truth Revealed: 100%</span>
+            </div>
+          </div>
+
+          <!-- Galley Item 2: The Debugger Joke (Coding vs Flying) -->
+          <div class="galley-reveal-card debugger-card" tabindex="0">
+            <div class="galley-badge badge-code"><i class="fa-solid fa-terminal"></i> COCKPIT VS. TERMINAL</div>
+            <div class="galley-card-header">
+              <span class="dish-emoji">💻 ➔ ✈️</span>
+              <h3 class="galley-dish-name">The Debugger Roast: Coding vs. Flying</h3>
+            </div>
+            <div class="reveal-content-container">
+              <div class="content-original always-active">
+                <span class="state-label tag-debugger">Python SyntaxError vs. Mid-Air Turbulence</span>
+                <p class="dish-text">
+                  “You deal with unruly passengers at 35,000 feet; I spend 4 hours staring at a missing semicolon on a terminal screen wondering where my life went. Honestly, between mid-air turbulence and a Python SyntaxError, your passengers might be easier to handle.”
+                </p>
+              </div>
+            </div>
+            <div class="galley-footer-status status-blue">
+              <span class="status-left"><i class="fa-solid fa-bug"></i> Terminal Semicolons: 0</span>
+              <span class="status-right">Passenger Chaos: Manageable</span>
+            </div>
+          </div>
+
+          <!-- Galley Item 3: The Red Special -->
+          <div class="galley-reveal-card favorite-highlight-card" tabindex="0">
+            <div class="galley-badge badge-red"><i class="fa-solid fa-heart"></i> ADITI'S UNCONDITIONAL FAVORITE</div>
+            <div class="galley-card-header">
+              <span class="dish-emoji">🍅</span>
+              <h3 class="galley-dish-name">The Red Special: Ripe Plum Tomatoes</h3>
+            </div>
+            <div class="reveal-content-container">
+              <div class="content-original always-active">
+                <span class="state-label tag-chef-pick">Chef’s Pick • Unconditionally Loved</span>
+                <p class="dish-text">
+                  Juicy, vibrant, biologically flawless tomatoes. Universally worshipped, cockpits approved, and declared by Aditi to be the supreme deity of all edible flora.
+                </p>
+              </div>
+            </div>
+            <div class="galley-footer-status status-red">
+              <span class="status-left"><i class="fa-solid fa-shield-halved"></i> Security Status: Strictly Protected</span>
+              <span class="status-right">Cockpit Clearance: 100%</span>
+            </div>
+          </div>
+
+          <!-- Galley Item 4: The Hazard Platter -->
+          <div class="galley-reveal-card hazard-warning-card" tabindex="0">
+            <div class="galley-badge badge-hazard"><i class="fa-solid fa-biohazard"></i> BIOHAZARD WARNING</div>
+            <div class="galley-card-header">
+              <span class="dish-emoji">🤮</span>
+              <h3 class="galley-dish-name">The Hazard Platter: Bhindi Masala</h3>
+            </div>
+            <div class="reveal-content-container">
+              <div class="content-original always-active">
+                <span class="state-label tag-banned">Rated 0/10 by Ground Crew • Banned</span>
+                <p class="dish-text">
+                  Sticky, questionable, and officially declared a crime against tastebuds. Subject to immediate ejection through the cargo depressurization hatch if sighted within 50 nautical miles.
+                </p>
+              </div>
+            </div>
+            <div class="galley-footer-status status-hazard">
+              <span class="status-left"><i class="fa-solid fa-ban"></i> Cockpit Ban: Permanent</span>
+              <span class="status-right">Ejection Protocol: Armed</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 6: SURVIVOR DATA (WHY ADITI IS A SAINT REPORT) -->
+      <section class="section" id="survivor-data">
+        <div class="section-title-wrap">
+          <div class="section-badge badge-red"><i class="fa-solid fa-heart-pulse"></i></div>
+          <div>
+            <h2 class="section-heading">Flight Log: 3-Year Saint Data</h2>
+            <p class="section-subheading">Telemetry breakdown of why Aditi deserves an honorary Nobel Peace Prize for dealing with Kanishk</p>
+          </div>
+        </div>
+
+        <div class="survivor-metrics-grid">
+
+          <div class="metric-card">
+            <div class="metric-icon-wrap"><i class="fa-solid fa-brain"></i></div>
+            <div class="metric-value-num">Saint Tier</div>
+            <div class="metric-label-title">Habit #1: The Engineering Brain</div>
+            <p class="metric-subtext">Certified Saint for listening to multi-hour breakdowns of algorithms, tech hardware, and logic puzzles without once deploying the emergency oxygen mask.</p>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-wrap icon-red"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div class="metric-value-num">2,556 Days</div>
+            <div class="metric-label-title">Habit #2: The 7-Year Rental Plan</div>
+            <p class="metric-subtext">Awarded “Most Patient Creditor” for leaving a watch and scarf on what was supposed to be a temporary loan—now officially the longest-running non-returned souvenir in civil aviation history.</p>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-wrap icon-blue"><i class="fa-solid fa-battery-full"></i></div>
+            <div class="metric-value-num">999.9%</div>
+            <div class="metric-label-title">Cruising Altitude Survival Stats</div>
+            <p class="metric-subtext">Aditi's patience reservoir after 3+ years of tolerating terminal bugs, late-night code rants, and stubborn habit loops.</p>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-wrap icon-gold"><i class="fa-solid fa-award"></i></div>
+            <div class="metric-value-num">Rank #1</div>
+            <div class="metric-label-title">Millie Bobby Brown Fan Club</div>
+            <p class="metric-subtext">Absolute undisputed favorite actress. Certified non-negotiable preference in all IFE trivia databases.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 7: SCROLL-LINKED FLIGHT PATH TIMELINE (2017 TO 2026) -->
+      <section class="section" id="flight-path">
+        <div class="section-title-wrap">
+          <div class="section-badge"><i class="fa-solid fa-route"></i></div>
+          <div>
+            <h2 class="section-heading">Flight Path: 2017 to 2026</h2>
+            <p class="section-subheading">Scroll along the route from the MSRTC bus to cloud summits and Italian espresso</p>
+          </div>
+        </div>
+
+        <div class="flight-path-timeline-box">
+          <div class="timeline-vertical-spine">
+            <div class="timeline-active-fill" id="timelineActiveFill"></div>
+            <div class="traveling-plane-node" id="travelingPlaneNode">
+              <i class="fa-solid fa-plane"></i>
+            </div>
+          </div>
+
+          <div class="timeline-waypoints">
+
+            <!-- Waypoint 1: Origin Runway -->
+            <div class="waypoint-item waypoint-left" data-year="2017">
+              <div class="waypoint-marker"><i class="fa-solid fa-bus"></i></div>
+              <div class="waypoint-content card">
+                <span class="waypoint-year-pill">2017 • ORIGIN RUNWAY</span>
+                <h3 class="waypoint-title">Point 1: The Aundha to Parbhani Express</h3>
+                <p class="waypoint-desc">
+                  True connection does not begin in Paris or Venice. It begins on a bumpy MSRTC red bus clattering its way from Aundha to Parbhani, where the inflight entertainment was just me trying not to fall into your lap on every speed breaker.
+                </p>
+                <div class="waypoint-tag-row">
+                  <span class="tag-pill"><i class="fa-solid fa-bus-simple"></i> MSRTC Red Bus</span>
+                  <span class="tag-pill"><i class="fa-solid fa-triangle-exclamation"></i> Speed Breaker Protocol</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Waypoint 2: The Souvenir Protocol -->
+            <div class="waypoint-item waypoint-right" data-year="2019">
+              <div class="waypoint-marker"><i class="fa-solid fa-clock-rotate-left"></i></div>
+              <div class="waypoint-content card">
+                <span class="waypoint-year-pill">2018–2020 • THE SOUVENIR PROTOCOL</span>
+                <h3 class="waypoint-title">Point 2: Food Tech Labs &amp; Unclaimed Baggage</h3>
+                <p class="waypoint-desc">
+                  Measuring the shelf-life of processed cheese in food science labs while Kanishk borrows the watch and scarf “just for a week”—officially initiating the longest-running non-returned souvenir loan in history.
+                </p>
+                <div class="waypoint-tag-row">
+                  <span class="tag-pill tag-red"><i class="fa-solid fa-clock"></i> 7-Year Temporary Loan</span>
+                  <span class="tag-pill"><i class="fa-solid fa-flask"></i> Shelf-Life Analysis</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Waypoint 3: The Flight Deck Pivot -->
+            <div class="waypoint-item waypoint-left" data-year="2022">
+              <div class="waypoint-marker marker-gold"><i class="fa-solid fa-plane-up"></i></div>
+              <div class="waypoint-content card">
+                <span class="waypoint-year-pill pill-gold">2021–2024 • 35,000 FT</span>
+                <h3 class="waypoint-title">Point 3: The Flight Deck Pivot</h3>
+                <p class="waypoint-desc">
+                  Cruising at 35,000 feet! Flying across timezones, rocking the cabin crew uniform, explaining to Seat 12C that tea and coffee share the same hot water tank, while Kanishk stares at terminal semicolons.
+                </p>
+                <div class="waypoint-tag-row">
+                  <span class="tag-pill"><i class="fa-solid fa-cloud"></i> 35,000 Feet</span>
+                  <span class="tag-pill"><i class="fa-solid fa-mug-hot"></i> Hot Water Tank Truth</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Waypoint 4: Destination Italy -->
+            <div class="waypoint-item waypoint-right destination-item" data-year="2026">
+              <div class="waypoint-marker marker-red"><i class="fa-solid fa-location-dot"></i></div>
+              <div class="waypoint-content card waypoint-dest-card">
+                <span class="waypoint-year-pill pill-dest">DESTINATION 2026 • TOUCHDOWN</span>
+                <h3 class="waypoint-title title-italy">Point 4: Destination Italy 🇮🇹</h3>
+                <p class="waypoint-desc">
+                  Touchdown in Milan &amp; Rome! Training predictive machine learning algorithms, mastering data science, strolling sunset cobblestones, and consuming infinite artisanal pistachio gelato.
+                </p>
+                <div class="waypoint-tag-row">
+                  <span class="tag-pill tag-red"><i class="fa-solid fa-laptop-code"></i> Data Science</span>
+                  <span class="tag-pill tag-dest"><i class="fa-solid fa-ice-cream"></i> Authentic Gelato</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- IFE Screen Footer -->
+    <footer class="ife-bottom-footer">
+      <div class="footer-left-col">
+        <span class="footer-brand"><i class="fa-solid fa-plane"></i> Flight Aditi • System AD-05</span>
+        <span class="footer-copy">All sentimental rights reserved • Created with love for Passenger Aditi (Seat 1A)</span>
+      </div>
+      <div class="footer-center-col">
+        <button class="footer-ding-btn" id="footerDingBtn" type="button">
+          <i class="fa-solid fa-bell"></i> Attendant Chime
+        </button>
+      </div>
+      <div class="footer-right-col">
+        <span class="footer-tag-red"><i class="fa-solid fa-heart"></i> Infinite Boarding Clearance</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- LIGHTBOX MODAL FOR ARTIFACTS -->
+  <div class="artifact-lightbox-modal" id="artifactModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-dialog">
+      <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close modal">&times;</button>
+      <div class="modal-photo-wrap">
+        <img src="" alt="" class="modal-full-img" id="modalImg">
+      </div>
+      <div class="modal-text-content">
+        <div class="modal-header-row">
+          <span class="modal-tag" id="modalTag">CARGO INSPECTION</span>
+          <span class="modal-date" id="modalDate">7-Year Artifact</span>
+        </div>
+        <h3 class="modal-item-title" id="modalTitle">The Artifact Title</h3>
+        <p class="modal-quote" id="modalQuote">“Quote caption”</p>
+        <p class="modal-story" id="modalStory">Detailed historical backstory regarding how this item has been preserved for seven years.</p>
+        <div class="modal-footer-stamp">
+          <span class="stamp-verified"><i class="fa-solid fa-fingerprint"></i> ZERO INTENTION OF RETURNING • CO-PILOT CERTIFIED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti Canvas Layer -->
+  <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>
